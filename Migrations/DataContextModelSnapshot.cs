@@ -24,11 +24,9 @@ namespace dotnet_auth_boilerplate.Migrations
 
             modelBuilder.Entity("dotnet_auth_boilerplate.Models.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<byte[]>("PasswordHash")
                         .IsRequired()
@@ -38,8 +36,8 @@ namespace dotnet_auth_boilerplate.Migrations
                         .IsRequired()
                         .HasColumnType("bytea");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -54,11 +52,9 @@ namespace dotnet_auth_boilerplate.Migrations
 
             modelBuilder.Entity("dotnet_auth_boilerplate.Models.UserProfile", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -80,8 +76,8 @@ namespace dotnet_auth_boilerplate.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 

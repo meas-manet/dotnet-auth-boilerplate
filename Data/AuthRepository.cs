@@ -40,9 +40,9 @@ namespace dotnet_auth_boilerplate.Data
             return response;
         }
 
-        public async Task<ServiceResponse<int>> Register(User user, string password)
+        public async Task<ServiceResponse<Guid>> Register(User user, string password)
         {
-            var response = new ServiceResponse<int>();
+            var response = new ServiceResponse<Guid>();
             if (await UserExists(user.Username))
             {
                 response.Success = false;

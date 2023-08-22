@@ -19,7 +19,7 @@ namespace dotnet_auth_boilerplate.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<ActionResult<ServiceResponse<int>>> Register(UserRegisterDto request)
+        public async Task<ActionResult<ServiceResponse<Guid>>> Register(UserRegisterDto request)
         {
             var response = await _authRepo.Register(
                 new User { Username = request.Username }, request.Password
