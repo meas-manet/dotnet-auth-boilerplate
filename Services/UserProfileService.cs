@@ -48,14 +48,58 @@ namespace dotnet_auth_boilerplate.Services
             return serviceResponse;
         }
 
-        public Task<ServiceResponse<GetUserProfileDto>> UpdateUserProfile(UpdateUserProfileDto updateUserProfileDto)
+        public async Task<ServiceResponse<GetUserProfileDto>> UpdateUserProfile(UpdateUserProfileDto updatedUserProfile)
         {
-            throw new NotImplementedException();
+            var serviceResponse = new ServiceResponse<GetUserProfileDto>();
+            try
+            {
+                var userProfile = await _context.UserProfiles
+                                        .Include(u => u.User)
+                                        .FirstOrDefaultAsync(u => u.Id == updatedUserProfile.Id);
+                if (userProfile is null || userProfile.User!.Id != GetUserId())
+                {
+                    throw new Exception($"User Profile not found");
+                }
+
+                userProfile.Firstname = updatedUserProfile.Firstname;
+                userProfile.Lastname = updatedUserProfile.Lastname;
+                userProfile.PhoneNumber = updatedUserProfile.PhoneNumber;
+                userProfile.Email = updatedUserProfile.Email;
+                userProfile.Address = updatedUserProfile.Address;
+
+                await _context.SaveChangesAsync();
+                serviceResponse.Data = _mapper.Map<GetUserProfileDto>(userProfile);
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+            return serviceResponse;
         }
 
-        public Task<ServiceResponse<List<GetUserProfileDto>>> DeleteUserProfile(Guid id)
+        public async Task<ServiceResponse<List<GetUserProfileDto>>> DeleteUserProfile(Guid id)
         {
-            throw new NotImplementedException();
+            var serviceResponse = new ServiceResponse<List<GetUserProfileDto>>();
+            try
+            {
+                var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(u => u.Id == id && u.User!.Id == GetUserId());
+                if (userProfile is null)
+                {
+                    throw new Exception($"User Profile not found");
+                }
+                _context.UserProfiles.Remove(userProfile);
+                await _context.SaveChangesAsync();
+
+                serviceResponse.Data = await _context.UserProfiles.Where(u => u.User!.Id == GetUserId())
+                                        .Select(u => _mapper.Map<GetUserProfileDto>(u)).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+            return serviceResponse;
         }
     }
 }

@@ -31,5 +31,27 @@ namespace dotnet_auth_boilerplate.Controllers
         {
             return Ok(await _userProfileService.AddUserProfile(addUserProfile));
         }
+
+        [HttpPut]
+        public async Task<ActionResult<ServiceResponse<GetUserProfileDto>>> UpdateUserProfile(UpdateUserProfileDto updateUserProfile)
+        {
+            var response = await _userProfileService.UpdateUserProfile(updateUserProfile);
+            if (response.Data is null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpDelete]
+        public async Task<ActionResult<ServiceResponse<GetUserProfileDto>>> DeleteUserProfile(Guid id)
+        {
+            var response = await _userProfileService.DeleteUserProfile(id);
+            if (response.Data is null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
     }
 }
