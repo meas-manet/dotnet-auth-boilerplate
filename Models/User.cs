@@ -11,6 +11,6 @@ namespace dotnet_auth_boilerplate.Models
         public string Username { get; set; } = string.Empty;
         public byte[] PasswordHash { get; set; } = new byte[0];
         public byte[] PasswordSalt { get; set; } = new byte[0];
-        public List<User>? Users { get; set; }
+        public UserProfile? UserProfiles { get; set; }
     }
 }
