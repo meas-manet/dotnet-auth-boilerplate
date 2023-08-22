@@ -36,16 +36,11 @@ namespace dotnet_auth_boilerplate.Migrations
                         .IsRequired()
                         .HasColumnType("bytea");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Users");
                 });
@@ -86,17 +81,10 @@ namespace dotnet_auth_boilerplate.Migrations
                     b.ToTable("UserProfiles");
                 });
 
-            modelBuilder.Entity("dotnet_auth_boilerplate.Models.User", b =>
-                {
-                    b.HasOne("dotnet_auth_boilerplate.Models.User", null)
-                        .WithMany("Users")
-                        .HasForeignKey("UserId");
-                });
-
             modelBuilder.Entity("dotnet_auth_boilerplate.Models.UserProfile", b =>
                 {
                     b.HasOne("dotnet_auth_boilerplate.Models.User", "User")
-                        .WithMany()
+                        .WithMany("UserProfiles")
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
@@ -104,7 +92,7 @@ namespace dotnet_auth_boilerplate.Migrations
 
             modelBuilder.Entity("dotnet_auth_boilerplate.Models.User", b =>
                 {
-                    b.Navigation("Users");
+                    b.Navigation("UserProfiles");
                 });
 #pragma warning restore 612, 618
         }

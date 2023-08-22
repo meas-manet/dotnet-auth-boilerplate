@@ -33,7 +33,7 @@ namespace dotnet_auth_boilerplate.Services
 
         public async Task<ServiceResponse<List<GetUserProfileDto>>> AddUserProfile(AddUserProfileDto addUserProfile)
         {
-            var serviceResponse = new ServiceResponse<GetUserProfileDto>();
+            var serviceResponse = new ServiceResponse<List<GetUserProfileDto>>();
             var userProfile = _mapper.Map<UserProfile>(addUserProfile);
             userProfile.User = await _context.Users.FirstOrDefaultAsync(u => u.Id == GetUserId());
 

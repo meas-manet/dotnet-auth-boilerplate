@@ -8,6 +8,5 @@ namespace dotnet_auth_boilerplate.Dtos.User
     public class GetUserDto
     {
         public string Username { get; set; } = string.Empty;
-
     }
 }
