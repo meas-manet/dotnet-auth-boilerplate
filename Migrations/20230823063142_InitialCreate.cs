@@ -18,7 +18,10 @@ namespace dotnet_auth_boilerplate.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Username = table.Column<string>(type: "text", nullable: false),
                     PasswordHash = table.Column<byte[]>(type: "bytea", nullable: false),
-                    PasswordSalt = table.Column<byte[]>(type: "bytea", nullable: false)
+                    PasswordSalt = table.Column<byte[]>(type: "bytea", nullable: false),
+                    RefreshToken = table.Column<string>(type: "text", nullable: false),
+                    TokenCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    TokenExpires = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {

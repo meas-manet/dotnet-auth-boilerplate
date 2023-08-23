@@ -13,11 +13,13 @@ namespace dotnet_auth_boilerplate.Data
     {
         private readonly DataContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthRepository(DataContext context, IConfiguration configuration)
+        public AuthRepository(DataContext context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _configuration = configuration;
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ServiceResponse<string>> Login(string username, string password)
@@ -37,6 +39,13 @@ namespace dotnet_auth_boilerplate.Data
             else
             {
                 response.Data = CreateToken(user);
+                var refreshToken = GenerateRefreshToken();
+                user.RefreshToken = refreshToken.Token;
+                user.TokenExpires = refreshToken.Expires;
+                user.TokenCreated = refreshToken.Created;
+                setRefreshToken(refreshToken);
+                _context.Update(user);
+                await _context.SaveChangesAsync();
             }
             return response;
         }
@@ -71,9 +80,26 @@ namespace dotnet_auth_boilerplate.Data
             return false;
         }
 
-        public Task<string> RefreshToken()
+        public async Task<ServiceResponse<string>> RefreshToken(string token)
         {
-            throw new NotImplementedException();
+            var response = new ServiceResponse<string>();
+            var user = await _context.Users.SingleOrDefaultAsync(usr => usr.RefreshToken == token);
+            if (user == null)
+            {
+                response.Success = false;
+                response.Message = $"Token did not match any users.";
+                return response;
+            }
+
+            var newRefreshToken = GenerateRefreshToken();
+            user.RefreshToken = newRefreshToken.Token;
+            user.TokenExpires = newRefreshToken.Expires;
+            user.TokenCreated = DateTime.UtcNow.ToUniversalTime();
+            setRefreshToken(newRefreshToken);
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return response;
         }
 
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
@@ -125,26 +151,28 @@ namespace dotnet_auth_boilerplate.Data
             return tokenHandler.WriteToken(token);
         }
 
-        // private void setRefreshToken(RefreshToken newRefreshToken)
-        // {
-        //     var cookieOptions = new CookieOptions
-        //     {
-        //         HttpOnly = true,
-        //         Expires = newRefreshToken.Expires
-        //     };
-        //     Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
-
-        // }
+        private void setRefreshToken(RefreshToken newRefreshToken)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = newRefreshToken.Expires
+            };
+            _httpContextAccessor.HttpContext!.Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
+        }
 
         private RefreshToken GenerateRefreshToken()
         {
-            var refreshToken = new RefreshToken
+            var randomNumber = new byte[64];
+            using (var generator = RandomNumberGenerator.Create())
             {
-                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-                Expires = DateTime.Now.AddDays(7)
-            };
-
-            return refreshToken;
+                generator.GetBytes(randomNumber);
+                return new RefreshToken
+                {
+                    Token = Convert.ToBase64String(randomNumber),
+                    Expires = DateTime.UtcNow.AddDays(7).ToUniversalTime(),
+                };
+            }
         }
     }
 }

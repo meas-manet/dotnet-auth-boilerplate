@@ -12,7 +12,7 @@ using dotnet_auth_boilerplate.Data;
 namespace dotnet_auth_boilerplate.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230822064411_InitialCreate")]
+    [Migration("20230823063142_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -38,6 +38,16 @@ namespace dotnet_auth_boilerplate.Migrations
                     b.Property<byte[]>("PasswordSalt")
                         .IsRequired()
                         .HasColumnType("bytea");
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("TokenCreated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("TokenExpires")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Username")
                         .IsRequired()
