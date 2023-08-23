@@ -84,21 +84,23 @@ namespace dotnet_auth_boilerplate.Data
         {
             var response = new ServiceResponse<string>();
             var user = await _context.Users.SingleOrDefaultAsync(usr => usr.RefreshToken == token);
-            if (user == null)
+            if (user is null)
             {
                 response.Success = false;
-                response.Message = $"Token did not match any users.";
-                return response;
+                response.Message = "Token did not match any users.";
             }
+            else
+            {
+                var newRefreshToken = GenerateRefreshToken();
+                user.RefreshToken = newRefreshToken.Token;
+                user.TokenExpires = newRefreshToken.Expires;
+                user.TokenCreated = DateTime.UtcNow.ToUniversalTime();
+                setRefreshToken(newRefreshToken);
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
 
-            var newRefreshToken = GenerateRefreshToken();
-            user.RefreshToken = newRefreshToken.Token;
-            user.TokenExpires = newRefreshToken.Expires;
-            user.TokenCreated = DateTime.UtcNow.ToUniversalTime();
-            setRefreshToken(newRefreshToken);
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
-
+                response.Data = CreateToken(user);
+            }
             return response;
         }
 
