@@ -29,7 +29,12 @@ namespace dotnet_auth_boilerplate.Controllers
         [HttpPost]
         public async Task<ActionResult<ServiceResponse<List<GetUserProfileDto>>>> AddUserProfile(AddUserProfileDto addUserProfile)
         {
-            return Ok(await _userProfileService.AddUserProfile(addUserProfile));
+            var response = await _userProfileService.AddUserProfile(addUserProfile);
+            if (response.Data is null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
         }
 
         [HttpPut]

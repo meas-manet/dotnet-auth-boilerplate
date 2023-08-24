@@ -31,11 +31,27 @@ namespace dotnet_auth_boilerplate.Services
             return serviceResponse;
         }
 
+        public async Task<bool> UserExistWithUserProfile(Guid id)
+        {
+            if (await _context.UserProfiles.AnyAsync(usr => usr.User!.Id.Equals(id)))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public async Task<ServiceResponse<List<GetUserProfileDto>>> AddUserProfile(AddUserProfileDto addUserProfile)
         {
             var serviceResponse = new ServiceResponse<List<GetUserProfileDto>>();
             var userProfile = _mapper.Map<UserProfile>(addUserProfile);
             userProfile.User = await _context.Users.FirstOrDefaultAsync(u => u.Id == GetUserId());
+
+            if (await UserExistWithUserProfile(userProfile.User!.Id))
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = "User Profile already exists.";
+                return serviceResponse;
+            }
 
             _context.UserProfiles.Add(userProfile);
             await _context.SaveChangesAsync();
