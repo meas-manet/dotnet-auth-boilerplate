@@ -11,6 +11,12 @@ using dotnet_auth_boilerplate.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Add configuration to use enviroment variables 
+builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+// Build the configuration
+var configuration = builder.Configuration;
+
 // Add services to the container.
 
 builder.Services.AddDbContext<DataContext>(options =>
